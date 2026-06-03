@@ -1,0 +1,7 @@
+export class RefreshTokenCommand {
+  constructor(
+    public readonly userId: string,
+    public readonly refreshToken: string,
+    public readonly tenantId: string,
+  ) {}
+}

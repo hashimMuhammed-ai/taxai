@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2021",
+    "ignoreDeprecations": "5.0",
+    "types": ["node"],
+
+    "rootDir": ".",
+    "outDir": "./dist",
+
+    "baseUrl": "./",
+
+    "declaration": true,
+    "removeComments": true,
+
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+
+    "sourceMap": true,
+    "incremental": true,
+
+    "skipLibCheck": true,
+
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "paths": {
+      "@taxai/shared": ["libs/shared/src"],
+      "@taxai/shared/*": ["libs/shared/src/*"],
+
+      "@taxai/tax-rules": ["libs/tax-rules/src"],
+      "@taxai/tax-rules/*": ["libs/tax-rules/src/*"],
+
+      "@taxai/ai": ["libs/ai/src"],
+      "@taxai/ai/*": ["libs/ai/src/*"]
+    }
+  },
+
+  "include": [
+    "apps/**/*",
+    "libs/**/*"
+  ],
+
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts"
+  ]
+}

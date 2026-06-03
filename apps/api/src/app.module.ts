@@ -1,0 +1,62 @@
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { TerminusModule } from '@nestjs/terminus';
+import { WinstonModule } from 'nest-winston';
+
+import { AppConfigModule } from './infrastructure/config/config.module';
+import { AppConfigService } from './infrastructure/config/app-config.service';
+import { DatabaseModule } from './infrastructure/database/database.module';
+import { QueueModule } from './infrastructure/queue/queue.module';
+import { StorageModule } from './infrastructure/storage/storage.module';
+import { buildWinstonConfig } from './infrastructure/logger/winston.config';
+import { CorrelationIdMiddleware } from './presentation/interceptors/correlation-id.middleware';
+import { AuthModule } from './application/auth/auth.module';
+import { HealthController } from './presentation/controllers/health.controller';
+
+@Module({
+  imports: [
+    // ── Core infrastructure ─────────────────────────────────────────────────
+    AppConfigModule,  // Must be first — all other modules depend on config
+
+    WinstonModule.forRootAsync({
+      inject: [AppConfigService],
+      useFactory: (config: AppConfigService) => buildWinstonConfig(config.isProduction),
+    }),
+
+    ThrottlerModule.forRootAsync({
+      inject: [AppConfigService],
+      useFactory: (config: AppConfigService) => ({
+        throttlers: [
+          { ttl: config.throttleTtl, limit: config.throttleLimit },
+        ],
+      }),
+    }),
+
+    EventEmitterModule.forRoot({
+      wildcard: true,       // Support 'user.*' pattern subscriptions
+      delimiter: '.',
+      maxListeners: 20,
+      verboseMemoryLeak: true,
+    }),
+
+    TerminusModule,
+    CqrsModule.forRoot(),
+
+    // ── Feature infrastructure ──────────────────────────────────────────────
+    DatabaseModule,
+    QueueModule,
+    StorageModule,
+
+    // ── Feature modules (Day 2+: DocumentModule, TaxModule, GstModule) ──────
+    AuthModule,
+  ],
+  controllers: [HealthController],
+})
+export class AppModule implements NestModule {
+  // Apply correlation ID middleware to ALL routes — must be first in the chain
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(CorrelationIdMiddleware).forRoutes('*');
+  }
+}
