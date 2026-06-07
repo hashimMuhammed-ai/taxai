@@ -4,7 +4,7 @@ export class AuthTokensDto {
   accessToken!: string;
   refreshToken!: string;
   expiresIn!: number; // seconds
-  tokenType: 'Bearer' = 'Bearer';
+  tokenType = 'Bearer' as const;
 }
 
 export class UserProfileDto {

@@ -12,7 +12,13 @@ import { QueueModule } from './infrastructure/queue/queue.module';
 import { StorageModule } from './infrastructure/storage/storage.module';
 import { buildWinstonConfig } from './infrastructure/logger/winston.config';
 import { CorrelationIdMiddleware } from './presentation/interceptors/correlation-id.middleware';
+
+// Feature modules
 import { AuthModule } from './application/auth/auth.module';
+import { DocumentModule } from './application/document/document.module';
+import { TaxModule } from './application/tax/tax.module';
+import { GstModule } from './application/gst/gst.module';
+
 import { HealthController } from './presentation/controllers/health.controller';
 
 @Module({
@@ -49,8 +55,11 @@ import { HealthController } from './presentation/controllers/health.controller';
     QueueModule,
     StorageModule,
 
-    // ── Feature modules (Day 2+: DocumentModule, TaxModule, GstModule) ──────
+    // Feature modules
     AuthModule,
+    DocumentModule,
+    TaxModule,
+    GstModule,
   ],
   controllers: [HealthController],
 })

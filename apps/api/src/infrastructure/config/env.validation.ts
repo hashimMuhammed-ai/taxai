@@ -44,6 +44,11 @@ export const envValidationSchema = Joi.object({
     'any.required': '❌  ENCRYPTION_KEY is required for PII encryption',
   }),
 
+  // OpenAI (used by worker for AI extraction)
+  OPENAI_API_KEY: Joi.string().required().messages({
+    'any.required': '❌  OPENAI_API_KEY is required for AI document extraction',
+  }),
+
   // Rate Limiting
   THROTTLE_TTL: Joi.number().default(60000),
   THROTTLE_LIMIT: Joi.number().default(100),

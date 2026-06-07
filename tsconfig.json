@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "ES2021",
     "ignoreDeprecations": "5.0",
-    "types": ["node"],
+    "types": ["node", "jest"],
 
     "rootDir": ".",
     "outDir": "./dist",
