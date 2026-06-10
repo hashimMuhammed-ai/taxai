@@ -50,5 +50,7 @@ export class AppConfigService {
   get throttleLimit(): number { return this.config.get('THROTTLE_LIMIT', 100); }
   get authThrottleLimit(): number { return this.config.get('AUTH_THROTTLE_LIMIT', 5); }
 
-  get openaiApiKey(): string {return this.config.getOrThrow('openaiApiKey')}
+  get openaiApiKey(): string { return this.config.getOrThrow('openaiApiKey')}
+
+  get resendApiKey(): string { return this.config.getOrThrow('RESEND_API_KEY'); }
 }

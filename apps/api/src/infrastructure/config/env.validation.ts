@@ -53,4 +53,10 @@ export const envValidationSchema = Joi.object({
   THROTTLE_TTL: Joi.number().default(60000),
   THROTTLE_LIMIT: Joi.number().default(100),
   AUTH_THROTTLE_LIMIT: Joi.number().default(5),
+
+
+  RESEND_API_KEY: Joi.string().required().messages({
+  'any.required':
+    '❌ RESEND_API_KEY is required for email notifications (free at resend.com)',
+}),
 });

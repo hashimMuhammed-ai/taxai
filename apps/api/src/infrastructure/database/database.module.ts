@@ -3,20 +3,30 @@ import { MongooseModule } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { AppConfigService } from '../config/app-config.service';
 import { multiTenantPlugin } from './plugins/multi-tenant.plugin';
+
 import { UserSchemaClass, UserSchema } from './schemas/user.schema';
 import { DocumentSchemaClass, DocumentSchema} from './schemas/document.schema';
 import { TaxRecordSchemaClass, TaxRecordSchema} from './schemas/tax-record.schema';
 import {GstRecordSchemaClass, GstRecordSchema} from './schemas/gst-record.schema';
+import { FilingSchemaClass, FilingSchema } from './schemas/filing.schema';
+import { AuditLogSchemaClass, AuditLogSchema } from './schemas/audit-log.schema';
+import { NotificationSchemaClass, NotificationSchema } from './schemas/notification.schema';
 
 import { UserRepository } from './repositories/user.repository';
 import { DocumentRepository } from './repositories/document.repository';
 import { TaxRecordRepository } from './repositories/tax-record.repository';
 import { GstRecordRepository } from './repositories/gst-record.repository';
+import { FilingRepository } from './repositories/filing.repository';
+import { AuditLogRepository } from './repositories/audit-log.repository';
+import { NotificationRepository } from './repositories/notification.repository';
 
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { DOCUMENT_REPOSITORY } from '../../domain/repositories/document.repository.interface';
 import { TAX_RECORD_REPOSITORY } from '../../domain/repositories/tax-record.repository.interface';
 import { GST_RECORD_REPOSITORY } from '../../domain/repositories/gst-record.repository.interface';
+import { FILING_REPOSITORY } from '../../domain/repositories/filing.repository.interface';
+import { AUDIT_LOG_REPOSITORY } from '../../domain/repositories/audit-log.repository.interface';
+import { NOTIFICATION_REPOSITORY } from '../../domain/repositories/notification.repository.interface';
 
 @Module({
   imports: [
@@ -40,7 +50,10 @@ import { GST_RECORD_REPOSITORY } from '../../domain/repositories/gst-record.repo
       { name: UserSchemaClass.name, schema: UserSchema },
       { name: DocumentSchemaClass.name, schema: DocumentSchema },
       { name: TaxRecordSchemaClass.name, schema: TaxRecordSchema },
-      { name: GstRecordSchemaClass.name, schema: GstRecordSchema }
+      { name: GstRecordSchemaClass.name, schema: GstRecordSchema },
+      { name: FilingSchemaClass.name,    schema: FilingSchema    },
+      { name: AuditLogSchemaClass.name,  schema: AuditLogSchema  },
+      { name: NotificationSchemaClass.name, schema: NotificationSchema },
     ]),
   ],
   providers: [
@@ -59,8 +72,21 @@ import { GST_RECORD_REPOSITORY } from '../../domain/repositories/gst-record.repo
     {
       provide: GST_RECORD_REPOSITORY,
       useClass: GstRecordRepository,
-    }
+    },
+    {
+      provide: FILING_REPOSITORY,
+      useClass: FilingRepository,
+    },
+    {
+      provide: AUDIT_LOG_REPOSITORY,
+      useClass: AuditLogRepository,
+    },
+    {
+      provide: NOTIFICATION_REPOSITORY,
+      useClass: NotificationRepository,
+    },
   ],
-  exports: [USER_REPOSITORY, DOCUMENT_REPOSITORY, TAX_RECORD_REPOSITORY, GST_RECORD_REPOSITORY, MongooseModule],
+  exports: [USER_REPOSITORY, DOCUMENT_REPOSITORY, TAX_RECORD_REPOSITORY, GST_RECORD_REPOSITORY, 
+    FILING_REPOSITORY, AUDIT_LOG_REPOSITORY, NOTIFICATION_REPOSITORY, MongooseModule],
 })
 export class DatabaseModule {}
