@@ -126,7 +126,7 @@ export class TaxController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.queryBus.execute(
-      new GetTaxRecordByIdQuery(taxRecordId, user.sub, user.tenantId),
+      new GetTaxRecordByIdQuery(taxRecordId, user.sub, user.tenantId, user.role),
     );
   }
 }

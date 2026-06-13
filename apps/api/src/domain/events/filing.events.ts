@@ -57,17 +57,6 @@ export class CaAssignedToFilingEvent extends DomainEvent {
   ) { super(); }
 }
 
-// ─── Notification Events ──────────────────────────────────────────────────────
-export class DeadlineReminderTriggeredEvent extends DomainEvent {
-  constructor(
-    public readonly userId: string,
-    public readonly tenantId: string,
-    public readonly reminderType: string,
-    public readonly deadlineDate: Date,
-    public readonly daysRemaining: number,
-  ) { super(); }
-}
-
 // ─── Report Events ────────────────────────────────────────────────────────────
 export class ReportGeneratedEvent extends DomainEvent {
   constructor(

@@ -48,6 +48,14 @@ export class AddFilingNoteCommand {
   ) {}
 }
 
+export class PrepareFilingCommand {
+  constructor(
+    public readonly filingId: string,
+    public readonly userId: string,
+    public readonly tenantId: string,
+  ) {}
+}
+
 // ─── Queries ──────────────────────────────────────────────────────────────────
 export class GetMyFilingsQuery {
   constructor(

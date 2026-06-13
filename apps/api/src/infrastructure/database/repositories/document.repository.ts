@@ -13,8 +13,10 @@ export class DocumentRepository implements IDocumentRepository {
     private readonly model: Model<DocumentDocument>,
   ) {}
 
-  async findById(id: string, tenantId: string): Promise<DocumentEntity | null> {
-    const doc = await this.model.findOne({ _id: id, tenantId }).lean().exec();
+  async findById(id: string, tenantId?: string): Promise<DocumentEntity | null> {
+    const filter: any = { _id: id };
+    if (tenantId) filter.tenantId = tenantId;
+    const doc = await this.model.findOne(filter).lean().exec();
     return doc ? this.toEntity(doc) : null;
   }
 

@@ -28,6 +28,7 @@ export interface ExtractedDocumentData {
   invoiceAmount?: number;
   gstAmount?: number;
   invoiceDate?: string;
+  buyerGstin?: string;
 
   // Confidence score per field (0–1)
   confidence: Record<string, number>;

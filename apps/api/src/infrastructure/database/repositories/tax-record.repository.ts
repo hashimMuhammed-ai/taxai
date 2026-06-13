@@ -13,8 +13,10 @@ export class TaxRecordRepository implements ITaxRecordRepository {
     private readonly model: Model<TaxRecordDocument>,
   ) {}
 
-  async findById(id: string, tenantId: string): Promise<TaxRecordEntity | null> {
-    const doc = await this.model.findOne({ _id: id, tenantId }).lean().exec();
+  async findById(id: string, tenantId?: string): Promise<TaxRecordEntity | null> {
+    const filter: any = { _id: id };
+    if (tenantId) filter.tenantId = tenantId;
+    const doc = await this.model.findOne(filter).lean().exec();
     return doc ? this.toEntity(doc) : null;
   }
 

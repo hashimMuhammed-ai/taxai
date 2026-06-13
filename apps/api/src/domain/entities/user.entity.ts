@@ -83,6 +83,20 @@ export class UserEntity extends BaseEntity {
   // ─── Immutable state transitions ───────────────────────────────────────────
   // Returns a NEW entity — original is never mutated (immutable domain model)
 
+  withProfile(firstName?: string, lastName?: string, phone?: string): UserEntity {
+    return new UserEntity({
+      ...this.toProps(),
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      phone: phone ?? this.phone,
+      updatedAt: new Date(),
+    });
+  }
+
+  withPasswordHash(passwordHash: string): UserEntity {
+    return new UserEntity({ ...this.toProps(), passwordHash, updatedAt: new Date() });
+  }
+
   withRefreshToken(hash: string): UserEntity {
     return new UserEntity({ ...this.toProps(), refreshTokenHash: hash, updatedAt: new Date() });
   }

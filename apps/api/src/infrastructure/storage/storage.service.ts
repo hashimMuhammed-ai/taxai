@@ -14,7 +14,7 @@ import { AppConfigService } from '../config/app-config.service';
 export interface PresignedUploadResult {
   uploadUrl: string;   // Browser PUTs directly to this — API never handles bytes
   objectKey: string;   // Store this in MongoDB
-  publicUrl: string;   // URL after upload completes
+  publicUrl?: string;  // Optional public URL after upload completes
   expiresInSeconds: number;
 }
 
@@ -66,10 +66,12 @@ export class StorageService {
       expiresInSeconds,
     });
 
+    const publicUrl = this.config.r2PublicUrl ? `${this.config.r2PublicUrl}/${objectKey}` : undefined;
+
     return {
       uploadUrl,
       objectKey,
-      publicUrl: `${this.config.r2PublicUrl}/${objectKey}`,
+      publicUrl,
       expiresInSeconds,
     };
   }

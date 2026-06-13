@@ -26,7 +26,7 @@ export class CreateFilingHandler implements ICommandHandler<CreateFilingCommand,
     }
 
     // ── 2. Create filing in DRAFT state ─────────────────────────────────────
-    const filing = FilingEntity.create({
+    let filing = FilingEntity.create({
       id: uuidv4(),
       tenantId: cmd.tenantId,
       userId: cmd.userId,
@@ -34,6 +34,10 @@ export class CreateFilingHandler implements ICommandHandler<CreateFilingCommand,
       taxRecordId: cmd.taxRecordId,
       selectedRegime: cmd.selectedRegime,
     });
+
+    if (taxRecord.isFilingReady()) {
+      filing = filing.markAiPrepared();
+    }
 
     const saved = await this.filingRepo.save(filing);
 

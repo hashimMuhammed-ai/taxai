@@ -56,8 +56,6 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  // ── Global guards ─────────────────────────────────────────────────────────
-  app.useGlobalGuards(new RolesGuard(reflector));
 
   // ── Global filters ────────────────────────────────────────────────────────
   app.useGlobalFilters(new GlobalExceptionFilter(nestLogger));

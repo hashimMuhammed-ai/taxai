@@ -6,6 +6,9 @@ export type DocumentDocument = HydratedDocument<DocumentSchemaClass>;
 
 @Schema({ collection: 'documents', timestamps: true })
 export class DocumentSchemaClass {
+  @Prop({ type: String }) // ✅ tell Mongoose _id is a plain string (UUID)
+  _id!: string;
+
   @Prop({ required: true, index: true })
   userId!: string;
 

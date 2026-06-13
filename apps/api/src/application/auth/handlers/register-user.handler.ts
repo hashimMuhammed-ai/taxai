@@ -1,12 +1,14 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { Inject } from '@nestjs/common';
+import { Inject, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { RegisterUserCommand } from '../commands/register-user.command';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { IUserRepository, USER_REPOSITORY } from '../../../domain/repositories/user.repository.interface';
+import { ITenantRepository, TENANT_REPOSITORY } from '../../../domain/repositories/tenant.repository.interface';
 import { UserEntity } from '../../../domain/entities/user.entity';
+import { TenantEntity } from '../../../domain/entities/tenant.entity';
 import { UserRegisteredEvent } from '../../../domain/events/user.events';
 import { ResourceAlreadyExistsException } from '@taxai/shared';
 import { AppConfigService } from '../../../infrastructure/config/app-config.service';
@@ -15,16 +17,44 @@ import { AppConfigService } from '../../../infrastructure/config/app-config.serv
 export class RegisterUserHandler implements ICommandHandler<RegisterUserCommand, AuthResponseDto> {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
+    @Inject(TENANT_REPOSITORY) private readonly tenantRepo: ITenantRepository,
     private readonly jwtService: JwtService,
     private readonly config: AppConfigService,
     private readonly eventBus: EventBus,
   ) {}
 
   async execute(command: RegisterUserCommand): Promise<AuthResponseDto> {
-    const { email, password, firstName, lastName, role, tenantId, phone } = command;
+    const { email, password, firstName, lastName, role, workspaceAction, workspaceName, inviteCode, phone } = command;
+
+    let tenantId: string;
+
+    if (workspaceAction === 'create') {
+      if (!workspaceName || !workspaceName.trim()) {
+        throw new BadRequestException('Workspace name is required to create a workspace');
+      }
+      tenantId = uuidv4();
+      const code = uuidv4().substring(0, 8).toUpperCase();
+      const tenant = TenantEntity.create({
+        id: tenantId,
+        name: workspaceName,
+        inviteCode: code,
+      });
+      await this.tenantRepo.save(tenant);
+    } else if (workspaceAction === 'join') {
+      if (!inviteCode || !inviteCode.trim()) {
+        throw new BadRequestException('Workspace invite code is required to join');
+      }
+      const tenant = await this.tenantRepo.findByInviteCode(inviteCode);
+      if (!tenant) {
+        throw new BadRequestException('Invalid workspace invite code');
+      }
+      tenantId = tenant.id;
+    } else {
+      throw new BadRequestException('Invalid workspaceAction');
+    }
 
     // ── 1. Guard: email must be unique ──────────────────────────────────────
-    const exists = await this.userRepo.existsByEmail(email,tenantId);
+    const exists = await this.userRepo.existsByEmail(email, tenantId);
     if (exists) {
       throw new ResourceAlreadyExistsException('User', 'email', email);
     }

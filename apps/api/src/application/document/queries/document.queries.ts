@@ -10,5 +10,6 @@ export class GetDocumentByIdQuery {
     public readonly documentId: string,
     public readonly userId: string,
     public readonly tenantId: string,
+    public readonly requesterRole?: string,
   ) {}
 }

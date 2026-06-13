@@ -65,9 +65,13 @@ export class FilingEntity extends BaseEntity {
   // ─── Guarded state transitions ─────────────────────────────────────────────
   // Each transition validates the current state — illegal moves throw immediately
 
-  markAiPrepared(): FilingEntity {
+  markAiPrepared(taxRecordId?: string): FilingEntity {
     this.assertStatus(FILING_STATUS.DRAFT, 'mark as AI prepared');
-    return this.withProps({ status: FILING_STATUS.AI_PREPARED });
+    return this.withProps({
+      status: FILING_STATUS.AI_PREPARED,
+      rejectionReason: undefined,
+      ...(taxRecordId ? { taxRecordId } : {}),
+    });
   }
 
   submitForCaReview(caId: string): FilingEntity {

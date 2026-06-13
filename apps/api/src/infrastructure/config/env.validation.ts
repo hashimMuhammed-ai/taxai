@@ -36,7 +36,7 @@ export const envValidationSchema = Joi.object({
   CF_R2_ACCESS_KEY: Joi.string().required(),
   CF_R2_SECRET_KEY: Joi.string().required(),
   CF_R2_BUCKET: Joi.string().required(),
-  CF_R2_PUBLIC_URL: Joi.string().uri().required(),
+  CF_R2_PUBLIC_URL: Joi.string().uri().optional(),
 
   // PII Encryption — must be 64 hex chars = 32 bytes
   ENCRYPTION_KEY: Joi.string().length(64).required().messages({
@@ -44,19 +44,13 @@ export const envValidationSchema = Joi.object({
     'any.required': '❌  ENCRYPTION_KEY is required for PII encryption',
   }),
 
-  // OpenAI (used by worker for AI extraction)
-  OPENAI_API_KEY: Joi.string().required().messages({
-    'any.required': '❌  OPENAI_API_KEY is required for AI document extraction',
+  // Groq (used by worker for AI extraction)
+  GROQ_API_KEY: Joi.string().required().messages({
+    'any.required': '❌  GROQ_API_KEY is required for AI document extraction',
   }),
 
   // Rate Limiting
   THROTTLE_TTL: Joi.number().default(60000),
   THROTTLE_LIMIT: Joi.number().default(100),
   AUTH_THROTTLE_LIMIT: Joi.number().default(5),
-
-
-  RESEND_API_KEY: Joi.string().required().messages({
-  'any.required':
-    '❌ RESEND_API_KEY is required for email notifications (free at resend.com)',
-}),
 });

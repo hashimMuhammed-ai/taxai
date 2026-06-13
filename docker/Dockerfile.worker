@@ -30,4 +30,4 @@ RUN mkdir -p logs && chown nestjs:nodejs logs
 
 USER nestjs
 
-CMD ["node", "dist/apps/worker/main"]
+CMD ["node", "dist/apps/worker/apps/worker/src/main.js"]

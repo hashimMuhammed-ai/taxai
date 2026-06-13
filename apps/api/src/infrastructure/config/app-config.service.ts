@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppConfigService {
-  constructor(private readonly config: ConfigService) {}
+  constructor(private readonly config: ConfigService) { }
 
   // ─── App ─────────────────────────────────────────────────────────────────
   get nodeEnv(): string { return this.config.get('NODE_ENV', 'development'); }
@@ -37,7 +37,7 @@ export class AppConfigService {
   get r2AccessKey(): string { return this.config.getOrThrow('CF_R2_ACCESS_KEY'); }
   get r2SecretKey(): string { return this.config.getOrThrow('CF_R2_SECRET_KEY'); }
   get r2Bucket(): string { return this.config.getOrThrow('CF_R2_BUCKET'); }
-  get r2PublicUrl(): string { return this.config.getOrThrow('CF_R2_PUBLIC_URL'); }
+  get r2PublicUrl(): string | undefined { return this.config.get<string>('CF_R2_PUBLIC_URL'); }
   get r2Endpoint(): string {
     return `https://${this.r2AccountId}.r2.cloudflarestorage.com`;
   }
@@ -50,7 +50,5 @@ export class AppConfigService {
   get throttleLimit(): number { return this.config.get('THROTTLE_LIMIT', 100); }
   get authThrottleLimit(): number { return this.config.get('AUTH_THROTTLE_LIMIT', 5); }
 
-  get openaiApiKey(): string { return this.config.getOrThrow('openaiApiKey')}
-
-  get resendApiKey(): string { return this.config.getOrThrow('RESEND_API_KEY'); }
+  get groqApiKey(): string { return this.config.getOrThrow('GROQ_API_KEY') }
 }

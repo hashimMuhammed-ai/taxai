@@ -7,7 +7,9 @@ export class RegisterUserCommand {
     public readonly firstName: string,
     public readonly lastName: string,
     public readonly role: UserRole = UserRole.USER,
-    public readonly tenantId: string,
+    public readonly workspaceAction: 'create' | 'join',
+    public readonly workspaceName?: string,
+    public readonly inviteCode?: string,
     public readonly phone?: string,
     public readonly ipAddress?: string,
   ) {}

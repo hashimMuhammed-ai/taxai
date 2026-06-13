@@ -53,9 +53,9 @@ Extract fields and return ONLY valid JSON:
   },
 
   invoice: {
-    fields: ['invoiceNumber', 'gstin', 'vendorName', 'invoiceAmount', 'gstAmount', 'invoiceDate'],
+    fields: ['invoiceNumber', 'gstin', 'vendorName', 'invoiceAmount', 'gstAmount', 'invoiceDate', 'buyerGstin'],
     prompt: `You are a GST invoice parser for Indian invoices.
-Extract fields and return ONLY valid JSON:
+Extract fields and return ONLY valid raw JSON, with no markdown code blocks and no explanations:
 {
   "invoiceNumber": string | null,
   "gstin": string | null,
@@ -63,28 +63,36 @@ Extract fields and return ONLY valid JSON:
   "invoiceAmount": number | null,
   "gstAmount": number | null,
   "invoiceDate": string | null,
+  "buyerGstin": string | null,
   "confidence": {
-    "invoiceNumber": 0-1,
-    "gstin": 0-1,
-    "vendorName": 0-1,
-    "invoiceAmount": 0-1,
-    "gstAmount": 0-1
+    "invoiceNumber": 0.0-1.0,
+    "gstin": 0.0-1.0,
+    "vendorName": 0.0-1.0,
+    "invoiceAmount": 0.0-1.0,
+    "gstAmount": 0.0-1.0,
+    "invoiceDate": 0.0-1.0,
+    "buyerGstin": 0.0-1.0
   }
 }
 Rules:
-- GSTIN format: 2 digits + 5 letters + 4 digits + 1 letter + 1 alphanumeric + Z + 1 alphanumeric
+- gstin: This is the GSTIN of the seller (vendor/supplier) issuing the invoice. Format: 15-character Indian GSTIN.
+- buyerGstin: This is the GSTIN of the recipient (buyer/client). Format: 15-character Indian GSTIN.
+- invoiceAmount: This is the net taxable value or base amount BEFORE taxes/GST are added. Do NOT extract the grand total or gross amount.
+- gstAmount: This is the total GST tax amount (CGST + SGST or IGST).
 - invoiceDate format: "YYYY-MM-DD"
-- All monetary values must be numbers`,
+- All monetary values must be numbers (no commas, no ₹ symbols)
+- If a field is not found in the document, use null
+- Confidence: 1.0 = certain, 0.0 = not found or uncertain`,
   },
 };
 
 @Injectable()
 export class AiExtractionService {
   private readonly logger = new Logger(AiExtractionService.name);
-  private readonly openaiApiKey: string;
+  private readonly groqApiKey: string;
 
   constructor(private readonly config: AppConfigService) {
-    this.openaiApiKey = config.openaiApiKey;
+    this.groqApiKey = config.groqApiKey;
   }
 
   async extract(rawText: string, documentType: string): Promise<ExtractedDocumentData> {
@@ -99,14 +107,14 @@ export class AiExtractionService {
     const truncatedText = rawText.substring(0, 6000);
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.openaiApiKey}`,
+          Authorization: `Bearer ${this.groqApiKey}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',       // Fast + cheap for structured extraction
+          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
           temperature: 0,             // Zero temperature = deterministic extraction
           max_tokens: 1000,
           response_format: { type: 'json_object' }, // Force JSON output

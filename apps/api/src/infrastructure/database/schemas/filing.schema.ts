@@ -6,6 +6,7 @@ export type FilingDocument = HydratedDocument<FilingSchemaClass>;
 
 @Schema({ collection: 'filings', timestamps: true })
 export class FilingSchemaClass {
+  @Prop({ type: String }) _id!: string;
   @Prop({ required: true, index: true }) userId!: string;
   @Prop({ required: true, index: true }) tenantId!: string;
   @Prop({ required: true }) assessmentYear!: string;

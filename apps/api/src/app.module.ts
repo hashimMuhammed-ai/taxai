@@ -19,8 +19,11 @@ import { DocumentModule } from './application/document/document.module';
 import { TaxModule } from './application/tax/tax.module';
 import { GstModule } from './application/gst/gst.module';
 import { FilingModule } from './application/filing/filing.module';
-import { NotificationModule } from './application/notification/notification.module';
 import { AiChatModule } from './application/ai-chat/ai-chat.module';
+import { DashboardModule } from './application/dashboard/dashboard.module';
+import { ReportModule } from './application/report/report.module';
+import { UserModule } from './application/user/user.module';
+import { AdminModule } from './application/admin/admin.module';
 
 import { HealthController } from './presentation/controllers/health.controller';
 
@@ -64,8 +67,11 @@ import { HealthController } from './presentation/controllers/health.controller';
     TaxModule,
     GstModule,
     FilingModule,
-    NotificationModule,
     AiChatModule,
+    DashboardModule,
+    ReportModule,
+    UserModule,
+    AdminModule,
   ],
   controllers: [HealthController],
 })

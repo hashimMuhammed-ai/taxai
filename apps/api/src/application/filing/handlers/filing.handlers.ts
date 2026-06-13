@@ -11,6 +11,7 @@ import {
   GetFilingAuditTrailQuery,
 } from '../commands/filing.commands';
 import { IFilingRepository, FILING_REPOSITORY } from '../../../domain/repositories/filing.repository.interface';
+import { IUserRepository, USER_REPOSITORY } from '../../../domain/repositories/user.repository.interface';
 import { FilingEntity } from '../../../domain/entities/filing.entity';
 import { FilingStatusChangedEvent, FilingApprovedByCaEvent, FilingRejectedByCaEvent, CaAssignedToFilingEvent } from '../../../domain/events/filing.events';
 import { AuditLogService } from '../../audit/audit-log.service';
@@ -23,7 +24,7 @@ export class SubmitFilingForReviewHandler implements ICommandHandler<SubmitFilin
     @Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository,
     private readonly eventBus: EventBus,
     private readonly audit: AuditLogService,
-  ) {}
+  ) { }
 
   async execute(cmd: SubmitFilingForReviewCommand): Promise<FilingEntity> {
     const filing = await this.filingRepo.findById(cmd.filingId, cmd.tenantId);
@@ -52,10 +53,10 @@ export class ApproveFilingHandler implements ICommandHandler<ApproveFilingComman
     @Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository,
     private readonly eventBus: EventBus,
     private readonly audit: AuditLogService,
-  ) {}
+  ) { }
 
   async execute(cmd: ApproveFilingCommand): Promise<FilingEntity> {
-    const filing = await this.filingRepo.findById(cmd.filingId, cmd.tenantId);
+    const filing = await this.filingRepo.findById(cmd.filingId);
     if (!filing) throw new ResourceNotFoundException('Filing', cmd.filingId);
 
     const updated = filing.approveByCA(cmd.caId, cmd.note); // throws if not assigned CA
@@ -79,10 +80,10 @@ export class RejectFilingHandler implements ICommandHandler<RejectFilingCommand,
     @Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository,
     private readonly eventBus: EventBus,
     private readonly audit: AuditLogService,
-  ) {}
+  ) { }
 
   async execute(cmd: RejectFilingCommand): Promise<FilingEntity> {
-    const filing = await this.filingRepo.findById(cmd.filingId, cmd.tenantId);
+    const filing = await this.filingRepo.findById(cmd.filingId);
     if (!filing) throw new ResourceNotFoundException('Filing', cmd.filingId);
 
     const updated = filing.rejectByCA(cmd.caId, cmd.reason);
@@ -105,11 +106,23 @@ export class RejectFilingHandler implements ICommandHandler<RejectFilingCommand,
 export class AddFilingNoteHandler implements ICommandHandler<AddFilingNoteCommand, FilingEntity> {
   constructor(
     @Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository,
-  ) {}
+  ) { }
 
   async execute(cmd: AddFilingNoteCommand): Promise<FilingEntity> {
-    const filing = await this.filingRepo.findById(cmd.filingId, cmd.tenantId);
+    const filing = await this.filingRepo.findById(
+      cmd.filingId,
+      cmd.authorRole === 'user' ? cmd.tenantId : undefined,
+    );
     if (!filing) throw new ResourceNotFoundException('Filing', cmd.filingId);
+
+    if (cmd.authorRole === 'user') {
+      if (filing.userId !== cmd.authorId) throw new ForbiddenOperationException();
+    } else if (cmd.authorRole === 'ca') {
+      if (!filing.isAssignedTo(cmd.authorId)) throw new ForbiddenOperationException();
+    } else {
+      throw new ForbiddenOperationException();
+    }
+
     const updated = filing.addNote(cmd.authorId, cmd.authorRole, cmd.content);
     return this.filingRepo.update(updated);
   }
@@ -118,15 +131,18 @@ export class AddFilingNoteHandler implements ICommandHandler<AddFilingNoteComman
 // ─── Queries ──────────────────────────────────────────────────────────────────
 @QueryHandler(GetMyFilingsQuery)
 export class GetMyFilingsHandler implements IQueryHandler<GetMyFilingsQuery, FilingEntity[]> {
-  constructor(@Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository) {}
+  constructor(@Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository) { }
   async execute(q: GetMyFilingsQuery) { return this.filingRepo.findByUserId(q.userId, q.tenantId); }
 }
 
 @QueryHandler(GetFilingByIdQuery)
 export class GetFilingByIdHandler implements IQueryHandler<GetFilingByIdQuery, FilingEntity> {
-  constructor(@Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository) {}
+  constructor(@Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository) { }
   async execute(q: GetFilingByIdQuery): Promise<FilingEntity> {
-    const filing = await this.filingRepo.findById(q.filingId, q.tenantId);
+    const filing = await this.filingRepo.findById(
+      q.filingId,
+      q.requesterRole === 'user' ? q.tenantId : undefined,
+    );
     if (!filing) throw new ResourceNotFoundException('Filing', q.filingId);
     // CA can see any filing assigned to them; user can only see their own
     if (q.requesterRole === 'user' && filing.userId !== q.requesterId) throw new ForbiddenOperationException();
@@ -136,13 +152,33 @@ export class GetFilingByIdHandler implements IQueryHandler<GetFilingByIdQuery, F
 }
 
 @QueryHandler(GetCaFilingsQuery)
-export class GetCaFilingsHandler implements IQueryHandler<GetCaFilingsQuery, FilingEntity[]> {
-  constructor(@Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository) {}
-  async execute(q: GetCaFilingsQuery) { return this.filingRepo.findByCaId(q.caId, q.tenantId); }
+export class GetCaFilingsHandler implements IQueryHandler<GetCaFilingsQuery, any[]> {
+  constructor(
+    @Inject(FILING_REPOSITORY) private readonly filingRepo: IFilingRepository,
+    @Inject(USER_REPOSITORY) private readonly userRepo: IUserRepository,
+  ) { }
+
+  async execute(q: GetCaFilingsQuery) {
+    const filings = await this.filingRepo.findByCaId(q.caId);
+    return Promise.all(
+      filings.map(async (filing) => {
+        const user = await this.userRepo.findById(filing.userId, filing.tenantId);
+        return {
+          ...filing,
+          client: user
+            ? {
+                fullName: `${user.firstName} ${user.lastName}`,
+                email: user.email,
+              }
+            : undefined,
+        };
+      }),
+    );
+  }
 }
 
 @QueryHandler(GetFilingAuditTrailQuery)
 export class GetFilingAuditTrailHandler implements IQueryHandler<GetFilingAuditTrailQuery> {
-  constructor(private readonly audit: AuditLogService) {}
+  constructor(private readonly audit: AuditLogService) { }
   async execute(q: GetFilingAuditTrailQuery) { return this.audit.getResourceHistory(q.filingId, q.tenantId); }
 }

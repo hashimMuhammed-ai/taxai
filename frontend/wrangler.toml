@@ -1,0 +1,6 @@
+name = "taxai-frontend"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = ".vercel/output/static"
+
+[vars]
+NEXT_PUBLIC_API_URL = "https://taxai-api.railway.app/api/v1"

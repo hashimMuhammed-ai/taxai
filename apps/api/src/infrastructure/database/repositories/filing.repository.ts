@@ -13,8 +13,10 @@ export class FilingRepository implements IFilingRepository {
     private readonly model: Model<FilingDocument>,
   ) {}
 
-  async findById(id: string, tenantId: string): Promise<FilingEntity | null> {
-    const doc = await this.model.findOne({ _id: id, tenantId }).lean().exec();
+  async findById(id: string, tenantId?: string): Promise<FilingEntity | null> {
+    const filter: any = { _id: id };
+    if (tenantId) filter.tenantId = tenantId;
+    const doc = await this.model.findOne(filter).lean().exec();
     return doc ? this.toEntity(doc) : null;
   }
 
@@ -23,8 +25,10 @@ export class FilingRepository implements IFilingRepository {
     return docs.map((d) => this.toEntity(d));
   }
 
-  async findByCaId(caId: string, tenantId: string): Promise<FilingEntity[]> {
-    const docs = await this.model.find({ assignedCaId: caId, tenantId }).sort({ createdAt: -1 }).lean().exec();
+  async findByCaId(caId: string, tenantId?: string): Promise<FilingEntity[]> {
+    const filter: any = { assignedCaId: caId };
+    if (tenantId) filter.tenantId = tenantId;
+    const docs = await this.model.find(filter).sort({ createdAt: -1 }).lean().exec();
     return docs.map((d) => this.toEntity(d));
   }
 

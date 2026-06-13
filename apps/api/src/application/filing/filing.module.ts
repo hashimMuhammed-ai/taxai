@@ -7,6 +7,9 @@ import {
   CreateFilingHandler,
 } from './handlers/create-filing.handler';
 import {
+  PrepareFilingHandler,
+} from './handlers/prepare-filing.handler';
+import {
   SubmitFilingForReviewHandler,
   ApproveFilingHandler,
   RejectFilingHandler,
@@ -19,6 +22,7 @@ import {
 
 const CommandHandlers = [
   CreateFilingHandler,
+  PrepareFilingHandler,
   SubmitFilingForReviewHandler,
   ApproveFilingHandler,
   RejectFilingHandler,

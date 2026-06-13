@@ -1,8 +1,6 @@
 // Queue Names 
 export const QUEUES = {
   DOCUMENT_PROCESSING: 'document-processing',
-  NOTIFICATIONS: 'notifications',
-  FILING_REMINDERS: 'filing-reminders',
   REPORT_GENERATION: 'report-generation',
 } as const;
 
@@ -12,16 +10,7 @@ export const JOBS = {
     PROCESS_DOCUMENT: 'process-uploaded-document',
     EXTRACT_INVOICE: 'extract-invoice',
   },
-  NOTIFICATIONS: {
-    SEND_EMAIL: 'send-email',
-    WELCOME_EMAIL: 'welcome-email',
-    FILING_APPROVED: 'filing-approved',
-  },
-  FILING_REMINDERS: {
-    ITR_DEADLINE: 'itr-deadline-reminder',
-    ADVANCE_TAX: 'advance-tax-reminder',
-    GST_RETURN: 'gst-return-reminder',
-  },
+
   REPORT_GENERATION: {
     TAX_SUMMARY_PDF: 'tax-summary-pdf',
     GST_SUMMARY_PDF: 'gst-summary-pdf',
@@ -154,23 +143,6 @@ export type CaCaseStatus =
   typeof CA_CASE_STATUS[keyof typeof CA_CASE_STATUS];
 
 
-  export const NOTIFICATION_TYPE = {
-  DOCUMENT_UPLOADED: 'document_uploaded',
-  EXTRACTION_COMPLETE: 'extraction_complete',
-  EXTRACTION_FAILED: 'extraction_failed',
-  TAX_CALCULATED: 'tax_calculated',
-  FILING_STATUS_CHANGED: 'filing_status_changed',
-  CA_ASSIGNED: 'ca_assigned',
-  CA_APPROVED: 'ca_approved',
-  CA_REJECTED: 'ca_rejected',
-  DEADLINE_REMINDER: 'deadline_reminder',
-  REPORT_READY: 'report_ready',
-} as const;
-
-export type NotificationType =
-  typeof NOTIFICATION_TYPE[keyof typeof NOTIFICATION_TYPE];
-
-
   export const AUDIT_ACTION = {
   USER_REGISTERED: 'user.registered',
   USER_LOGGED_IN: 'user.logged_in',
@@ -189,16 +161,4 @@ export type NotificationType =
 export type AuditAction =
   typeof AUDIT_ACTION[keyof typeof AUDIT_ACTION];
 
-
-  export const REMINDER_TYPE = {
-  ITR_DEADLINE: 'itr_deadline',
-  ADVANCE_TAX_Q1: 'advance_tax_q1',
-  ADVANCE_TAX_Q2: 'advance_tax_q2',
-  ADVANCE_TAX_Q3: 'advance_tax_q3',
-  ADVANCE_TAX_Q4: 'advance_tax_q4',
-  GST_GSTR1: 'gst_gstr1',
-  GST_GSTR3B: 'gst_gstr3b',
-} as const;
-
-export type ReminderType =
-  typeof REMINDER_TYPE[keyof typeof REMINDER_TYPE];
+

@@ -7,7 +7,7 @@ import { JwtAuthGuard, RolesGuard, Roles } from '../../presentation/guards/guard
 import { CurrentUser } from '../../presentation/decorators/current-user.decorator';
 import { JwtPayload, UserRole, TaxRegime, TAX_REGIME } from '@taxai/shared';
 import {
-  CreateFilingCommand, SubmitFilingForReviewCommand,
+  CreateFilingCommand, PrepareFilingCommand, SubmitFilingForReviewCommand,
   ApproveFilingCommand, RejectFilingCommand, AddFilingNoteCommand,
   GetMyFilingsQuery, GetFilingByIdQuery, GetCaFilingsQuery, GetFilingAuditTrailQuery,
 } from '../../application/filing/commands/filing.commands';
@@ -56,6 +56,18 @@ export class FilingController {
   @Roles(UserRole.USER)
   async getMyFilings(@CurrentUser() user: JwtPayload) {
     return this.queryBus.execute(new GetMyFilingsQuery(user.sub, user.tenantId));
+  }
+
+  @Post(':filingId/prepare')
+  @Roles(UserRole.USER)
+  @HttpCode(HttpStatus.OK)
+  async prepareFiling(
+    @Param('filingId') filingId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.commandBus.execute(
+      new PrepareFilingCommand(filingId, user.sub, user.tenantId),
+    );
   }
 
   @Post(':filingId/submit')

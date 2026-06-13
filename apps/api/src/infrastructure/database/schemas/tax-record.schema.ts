@@ -5,6 +5,9 @@ export type TaxRecordDocument = HydratedDocument<TaxRecordSchemaClass>;
 
 @Schema({ collection: 'tax_records', timestamps: true })
 export class TaxRecordSchemaClass {
+  @Prop({ type: String }) // ✅ tell Mongoose _id is a plain string (UUID)
+  _id!: string;
+
   @Prop({ required: true, index: true })
   userId!: string;
  

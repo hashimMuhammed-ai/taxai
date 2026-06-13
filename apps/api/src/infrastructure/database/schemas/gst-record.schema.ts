@@ -5,6 +5,10 @@ export type GstRecordDocument = HydratedDocument<GstRecordSchemaClass>;
 
 @Schema({ collection: 'gst_records', timestamps: true })
 export class GstRecordSchemaClass {
+
+  @Prop({ type: String }) // ✅ tell Mongoose _id is a plain string (UUID)
+  _id!: string;
+
   @Prop({ required: true, index: true })
   userId!: string;
 

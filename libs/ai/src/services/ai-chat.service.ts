@@ -41,14 +41,14 @@ export class AiChatService {
       { role: 'user', content: userMessage },
     ];
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.config.openaiApiKey}`,
+        Authorization: `Bearer ${this.config.groqApiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         temperature: 0.3,     // Low temperature for factual tax advice
         max_tokens: 800,
         messages,
@@ -57,7 +57,7 @@ export class AiChatService {
 
     if (!response.ok) {
       const err = await response.text();
-      throw new Error(`OpenAI API error: ${response.status} - ${err}`);
+      throw new Error(`Groq API error: ${response.status} - ${err}`);
     }
 
     const data = await response.json() as any;
@@ -84,14 +84,14 @@ export class AiChatService {
       { role: 'user', content: userMessage },
     ];
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.config.openaiApiKey}`,
+        Authorization: `Bearer ${this.config.groqApiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         temperature: 0.3,
         max_tokens: 800,
         stream: true,
@@ -100,7 +100,7 @@ export class AiChatService {
     });
 
     if (!response.ok || !response.body) {
-      throw new Error(`OpenAI streaming error: ${response.status}`);
+      throw new Error(`Groq streaming error: ${response.status}`);
     }
 
     const reader = response.body.getReader();

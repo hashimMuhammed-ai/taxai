@@ -23,5 +23,6 @@ export class GetTaxRecordByIdQuery {
     public readonly taxRecordId: string,
     public readonly userId: string,
     public readonly tenantId: string,
+    public readonly requesterRole?: string,
   ) {}
 }

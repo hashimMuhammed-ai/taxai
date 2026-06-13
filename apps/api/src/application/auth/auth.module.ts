@@ -6,11 +6,12 @@ import { DatabaseModule } from '../../infrastructure/database/database.module';
 import { AppConfigService } from '../../infrastructure/config/app-config.service';
 import { RegisterUserHandler } from './handlers/register-user.handler';
 import { LoginUserHandler } from './handlers/login-user.handler';
+import { RefreshTokenHandler } from './handlers/refresh-token.handler';
 import { AuthController } from '../../presentation/controllers/auth.controller';
 import { JwtAccessStrategy } from '../../presentation/guards/jwt-access.strategy';
 import { JwtRefreshStrategy } from '../../presentation/guards/jwt-refresh.strategy';
 
-const CommandHandlers = [RegisterUserHandler, LoginUserHandler];
+const CommandHandlers = [RegisterUserHandler, LoginUserHandler, RefreshTokenHandler];
 
 @Module({
   imports: [

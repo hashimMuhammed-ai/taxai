@@ -28,8 +28,6 @@ import { QUEUES } from '@taxai/shared';
     // Register all queues — adding a new queue is one line here
     BullModule.registerQueue(
       { name: QUEUES.DOCUMENT_PROCESSING },
-      { name: QUEUES.NOTIFICATIONS },
-      { name: QUEUES.FILING_REMINDERS },
       { name: QUEUES.REPORT_GENERATION },
     ),
   ],

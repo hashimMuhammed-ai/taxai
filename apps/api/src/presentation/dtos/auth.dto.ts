@@ -43,6 +43,19 @@ export class RegisterDto {
   @IsString()
   @Matches(/^\+?[1-9]\d{9,14}$/, { message: 'Invalid phone number format' })
   phone?: string;
+
+  @IsString()
+  @Matches(/^(create|join)$/, { message: 'workspaceAction must be either create or join' })
+  workspaceAction!: 'create' | 'join';
+
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: 'Workspace name must be at least 2 characters' })
+  workspaceName?: string;
+
+  @IsOptional()
+  @IsString()
+  inviteCode?: string;
 }
 
 export class LoginDto {

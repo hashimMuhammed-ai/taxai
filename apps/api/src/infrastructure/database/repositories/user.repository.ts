@@ -13,7 +13,7 @@ export class UserRepository implements IUserRepository {
   ) {}
 
   async findById(id: string, tenantId: string): Promise<UserEntity | null> {
-    const doc = await this.model.findOne({ _id: id, tenantId }).lean().exec();
+    const doc = await this.model.findOne({ _id: id, tenantId }).select('+refreshTokenHash').lean().exec();
     return doc ? this.toEntity(doc) : null;
   }
 
@@ -41,6 +41,37 @@ export class UserRepository implements IUserRepository {
     return this.toEntity(created.toObject());
   }
 
+  async findCAs(): Promise<UserEntity[]> {
+    const docs = await this.model.find({ role: UserRole.CA }).lean().exec();
+    return docs.map((d) => this.toEntity(d));
+  }
+
+// Day 4 additions
+  async updateProfile( userId: string, 
+    fields: {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    }): Promise<void> {await this.model.updateOne({ _id: userId },
+      {
+        $set: {
+          ...fields,
+          updatedAt: new Date(),
+        },
+      },
+    ).exec();
+  }
+
+async updatePassword( userId: string, passwordHash: string): Promise<void> {
+  await this.model.updateOne({ _id: userId },
+      {
+        $set: {
+          passwordHash,
+          updatedAt: new Date(),
+        },
+      },
+    ).exec();
+}
   async updateRefreshToken(userId: string, hash: string | null): Promise<void> {
     await this.model.updateOne({ _id: userId }, { $set: { refreshTokenHash: hash } }).exec();
   }

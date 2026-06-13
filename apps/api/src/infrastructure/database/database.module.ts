@@ -10,7 +10,7 @@ import { TaxRecordSchemaClass, TaxRecordSchema} from './schemas/tax-record.schem
 import {GstRecordSchemaClass, GstRecordSchema} from './schemas/gst-record.schema';
 import { FilingSchemaClass, FilingSchema } from './schemas/filing.schema';
 import { AuditLogSchemaClass, AuditLogSchema } from './schemas/audit-log.schema';
-import { NotificationSchemaClass, NotificationSchema } from './schemas/notification.schema';
+import { TenantSchemaClass, TenantSchema } from './schemas/tenant.schema';
 
 import { UserRepository } from './repositories/user.repository';
 import { DocumentRepository } from './repositories/document.repository';
@@ -18,7 +18,7 @@ import { TaxRecordRepository } from './repositories/tax-record.repository';
 import { GstRecordRepository } from './repositories/gst-record.repository';
 import { FilingRepository } from './repositories/filing.repository';
 import { AuditLogRepository } from './repositories/audit-log.repository';
-import { NotificationRepository } from './repositories/notification.repository';
+import { TenantRepository } from './repositories/tenant.repository';
 
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { DOCUMENT_REPOSITORY } from '../../domain/repositories/document.repository.interface';
@@ -26,7 +26,7 @@ import { TAX_RECORD_REPOSITORY } from '../../domain/repositories/tax-record.repo
 import { GST_RECORD_REPOSITORY } from '../../domain/repositories/gst-record.repository.interface';
 import { FILING_REPOSITORY } from '../../domain/repositories/filing.repository.interface';
 import { AUDIT_LOG_REPOSITORY } from '../../domain/repositories/audit-log.repository.interface';
-import { NOTIFICATION_REPOSITORY } from '../../domain/repositories/notification.repository.interface';
+import { TENANT_REPOSITORY } from '../../domain/repositories/tenant.repository.interface';
 
 @Module({
   imports: [
@@ -53,7 +53,7 @@ import { NOTIFICATION_REPOSITORY } from '../../domain/repositories/notification.
       { name: GstRecordSchemaClass.name, schema: GstRecordSchema },
       { name: FilingSchemaClass.name,    schema: FilingSchema    },
       { name: AuditLogSchemaClass.name,  schema: AuditLogSchema  },
-      { name: NotificationSchemaClass.name, schema: NotificationSchema },
+      { name: TenantSchemaClass.name,    schema: TenantSchema    },
     ]),
   ],
   providers: [
@@ -82,11 +82,11 @@ import { NOTIFICATION_REPOSITORY } from '../../domain/repositories/notification.
       useClass: AuditLogRepository,
     },
     {
-      provide: NOTIFICATION_REPOSITORY,
-      useClass: NotificationRepository,
+      provide: TENANT_REPOSITORY,
+      useClass: TenantRepository,
     },
   ],
   exports: [USER_REPOSITORY, DOCUMENT_REPOSITORY, TAX_RECORD_REPOSITORY, GST_RECORD_REPOSITORY, 
-    FILING_REPOSITORY, AUDIT_LOG_REPOSITORY, NOTIFICATION_REPOSITORY, MongooseModule],
+    FILING_REPOSITORY, AUDIT_LOG_REPOSITORY, TENANT_REPOSITORY, MongooseModule],
 })
 export class DatabaseModule {}

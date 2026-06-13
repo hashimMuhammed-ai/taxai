@@ -23,10 +23,6 @@ import {
   FilingSchema,
 } from '../../api/src/infrastructure/database/schemas/filing.schema';
 import {
-  NotificationSchemaClass,
-  NotificationSchema,
-} from '../../api/src/infrastructure/database/schemas/notification.schema';
-import {
   UserSchemaClass,
   UserSchema,
 } from '../../api/src/infrastructure/database/schemas/user.schema';
@@ -39,21 +35,17 @@ import {
 import { DocumentRepository } from '../../api/src/infrastructure/database/repositories/document.repository';
 import { TaxRecordRepository } from '../../api/src/infrastructure/database/repositories/tax-record.repository';
 import { FilingRepository } from '../../api/src/infrastructure/database/repositories/filing.repository';
-import { NotificationRepository } from '../../api/src/infrastructure/database/repositories/notification.repository';
 import { UserRepository } from '../../api/src/infrastructure/database/repositories/user.repository';
 import { AuditLogRepository } from '../../api/src/infrastructure/database/repositories/audit-log.repository';
 
 import { DOCUMENT_REPOSITORY } from '../../api/src/domain/repositories/document.repository.interface';
 import { TAX_RECORD_REPOSITORY } from '../../api/src/domain/repositories/tax-record.repository.interface';
 import { FILING_REPOSITORY } from '../../api/src/domain/repositories/filing.repository.interface';
-import { NOTIFICATION_REPOSITORY } from '../../api/src/domain/repositories/notification.repository.interface';
 import { USER_REPOSITORY } from '../../api/src/domain/repositories/user.repository.interface';
 import { AUDIT_LOG_REPOSITORY } from '../../api/src/domain/repositories/audit-log.repository.interface';
 
 // Worker processors + services
 import { DocumentProcessingWorker } from './processors/document-processing.worker';
-import { NotificationWorker } from './processors/notification.worker';
-import { FilingReminderScheduler } from './processors/filing-reminder.scheduler';
 import { ReportGeneratorWorker } from './processors/report-generator.worker';
 
 import { AiExtractionService } from './services/ai-extraction.service';
@@ -90,7 +82,6 @@ import { QUEUES } from '@taxai/shared';
       { name: DocumentSchemaClass.name, schema: DocumentSchema },
       { name: TaxRecordSchemaClass.name, schema: TaxRecordSchema },
       { name: FilingSchemaClass.name, schema: FilingSchema },
-      { name: NotificationSchemaClass.name, schema: NotificationSchema },
       { name: AuditLogSchemaClass.name, schema: AuditLogSchema },
     ]),
 
@@ -126,8 +117,6 @@ import { QUEUES } from '@taxai/shared';
 
     BullModule.registerQueue(
       { name: QUEUES.DOCUMENT_PROCESSING },
-      { name: QUEUES.NOTIFICATIONS },
-      { name: QUEUES.FILING_REMINDERS },
       { name: QUEUES.REPORT_GENERATION },
     ),
   ],
@@ -138,7 +127,6 @@ import { QUEUES } from '@taxai/shared';
     { provide: DOCUMENT_REPOSITORY, useClass: DocumentRepository },
     { provide: TAX_RECORD_REPOSITORY, useClass: TaxRecordRepository },
     { provide: FILING_REPOSITORY, useClass: FilingRepository },
-    { provide: NOTIFICATION_REPOSITORY, useClass: NotificationRepository },
     { provide: AUDIT_LOG_REPOSITORY, useClass: AuditLogRepository },
 
     // ── Services ───────────────────────────────────────────────────────────
@@ -146,8 +134,6 @@ import { QUEUES } from '@taxai/shared';
 
     // ── Queue Processors ───────────────────────────────────────────────────
     DocumentProcessingWorker,
-    NotificationWorker,
-    FilingReminderScheduler,
     ReportGeneratorWorker,
   ],
 })

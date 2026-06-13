@@ -15,7 +15,8 @@ import { Request } from 'express';
 import { RegisterDto, LoginDto } from '../dtos/auth.dto';
 import { RegisterUserCommand } from '../../application/auth/commands/register-user.command';
 import { LoginUserCommand } from '../../application/auth/commands/login-user.command';
-import { JwtAuthGuard } from '../guards/guards';
+import { RefreshTokenCommand } from '../../application/auth/commands/refresh-token.command';
+import { JwtAuthGuard, JwtRefreshGuard } from '../guards/guards';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { JwtPayload, UserRole } from '@taxai/shared';
 import { v4 as uuidv4 } from 'uuid';
@@ -30,10 +31,6 @@ export class AuthController {
     @Body() dto: RegisterDto,
     @Ip() ip: string,
   ) {
-    // In a real multi-tenant setup, tenantId comes from subdomain/header/invite token.
-    // For now, each user gets their own tenant (personal workspace).
-    const tenantId = uuidv4();
-
     return this.commandBus.execute(
       new RegisterUserCommand(
         dto.email,
@@ -41,7 +38,9 @@ export class AuthController {
         dto.firstName,
         dto.lastName,
         dto.role ?? UserRole.USER,
-        tenantId,
+        dto.workspaceAction,
+        dto.workspaceName,
+        dto.inviteCode,
         dto.phone,
         ip,
       ),
@@ -74,5 +73,15 @@ export class AuthController {
     // Invalidate refresh token by clearing hash in DB
     // Full implementation uses the RefreshTokenCommand from Day 1 (handler clears hash)
     return { message: 'Logged out successfully' };
+  }
+
+  @Post('refresh')
+  @UseGuards(JwtRefreshGuard)
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Req() req: Request) {
+    const user = req.user as JwtPayload & { rawToken: string };
+    return this.commandBus.execute(
+      new RefreshTokenCommand(user.sub, user.rawToken, user.tenantId),
+    );
   }
 }

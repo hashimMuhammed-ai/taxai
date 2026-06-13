@@ -102,7 +102,7 @@ export class DocumentController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.queryBus.execute(
-      new GetDocumentByIdQuery(documentId, user.sub, user.tenantId),
+      new GetDocumentByIdQuery(documentId, user.sub, user.tenantId, user.role),
     );
   }
 }
